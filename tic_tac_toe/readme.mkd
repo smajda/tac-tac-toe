@@ -3,4 +3,4 @@
 ## Dependencies
 
 - Django 1.5+
-- ??
+- That's it.
