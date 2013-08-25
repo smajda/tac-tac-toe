@@ -12,6 +12,21 @@
     {{ block.super }}
 
     <script id="table-template" type="text/x-handlebars-template">
+        <tr class="row1">
+            <td data-id="0">X</td>
+            <td data-id="1">X</td>
+            <td data-id="2">&nbsp;</td>
+        </tr>
+        <tr class="row2">
+            <td data-id="3">&nbsp;</td>
+            <td data-id="4">&nbsp;</td>
+            <td data-id="5">&nbsp;</td>
+        </tr>
+        <tr class="row3">
+            <td data-id="6">&nbsp;</td>
+            <td data-id="7">&nbsp;</td>
+            <td data-id="8">&nbsp;</td>
+        </tr>
     </script>
 
     <script src="{% static 'tic_tac_toe/js/tic_tac_toe.js' %}"></script>
@@ -20,7 +35,7 @@
 
 {% block content %}
 <div class="game">
-    <div class="turns">
+    <div class="scoreboard">
         <div class="player human active">Your turn</div>
         <div class="player computer">
             <span class="inactive">Computer</span>
@@ -30,21 +45,7 @@
 
     <table class="board">
         <tbody>
-            <tr class="row1">
-                <td data-id="0">X</td>
-                <td data-id="1">X</td>
-                <td data-id="2">&nbsp;</td>
-            </tr>
-            <tr class="row2">
-                <td data-id="3">&nbsp;</td>
-                <td data-id="4">&nbsp;</td>
-                <td data-id="5">&nbsp;</td>
-            </tr>
-            <tr class="row3">
-                <td data-id="6">&nbsp;</td>
-                <td data-id="7">&nbsp;</td>
-                <td data-id="8">&nbsp;</td>
-            </tr>
+
         </tbody>
     </table>
 </div>
