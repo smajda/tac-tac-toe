@@ -94,7 +94,7 @@ class Player(object):
         for square in self.game.free_squares:
             self.game.set_square(marker=self.marker, square=square)
 
-            if self.game.game_over:
+            if self.game.is_over():
                 score = self.get_score()
             else:
                 _, score = self.minimized_move()
@@ -115,7 +115,7 @@ class Player(object):
         for square in self.game.free_squares:
             self.game.set_square(marker=self.opponent.marker, square=square)
 
-            if self.game.game_over:
+            if self.game.is_over():
                 score = self.get_score()
             else:
                 _, score = self.maximized_move()
@@ -155,7 +155,7 @@ class Game(object):
     Because both players are computers, you can do this:
 
         game = Game()
-        while not game.game_over:
+        while not game.is_over():
             game.play()
 
     It will end in a tie every time. Alternatively,
@@ -197,8 +197,7 @@ class Game(object):
     o_squares = property(lambda self: self.indexes_for_marker(self.SQUARE_O))
     free_squares = property(lambda self: self.indexes_for_marker(self.SQUARE_FREE))
 
-    @property
-    def status(self):
+    def check_status(self):
         "See if either player has won, if the game is a tie, or if it's still going"
         # TODO I suspect the way I'm checking for wins is slowing my game down,
         # especially in Player's maximized/minimized_move methods.
@@ -214,10 +213,10 @@ class Game(object):
         # No winner, so return playing or tied if no squares left
         return self.STATUS_PLAYING if self.free_squares else self.STATUS_TIED
 
-    @property
-    def game_over(self):
-        "Just a shortcut to see if the game is over yet (in a tie or victory)"
-        return self.status != self.STATUS_PLAYING
+    def is_over(self):
+        "Updates status and return True if the game is over (in tie or victory)"
+        status = self.check_status()
+        return status != self.STATUS_PLAYING
 
     @property
     def current_move(self):
@@ -248,7 +247,7 @@ class Game(object):
 
     def play(self, square=None):
         self.current_player.play(square)
-        if self.game_over:
+        if self.is_over():
             print "{} wins!".format(self.winner) if self.winner else "Darn cat!"
 
 if __name__ == '__main__':
@@ -265,7 +264,7 @@ if __name__ == '__main__':
 
     #game = Game()
     game = Game(initial_board=[0,0,1, 0,2,1, 0,0,0])
-    while not game.game_over:
+    while not game.is_over():
         game.play(); game.print_board()  # Tie every time!
 
     #import IPython; IPython.embed()
