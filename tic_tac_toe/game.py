@@ -26,7 +26,7 @@ class Player(object):
 
     @property
     def opponent(self):
-        return self.game.player_o if self.marker == game.SQUARE_X else self.game.player_x
+        return self.game.player_o if self.marker == self.game.SQUARE_X else self.game.player_x
 
     @property
     def squares(self):
