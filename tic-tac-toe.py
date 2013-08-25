@@ -1,4 +1,5 @@
 from itertools import repeat
+from random import choice
 from textwrap import dedent
 
 
@@ -11,7 +12,10 @@ class Player(object):
     A Tic-Tac-Toe player.
 
     Belongs to a game and sets a marker of
-    Game.SQUARE_X or Game.SQUARE_O
+    Game.SQUARE_X or Game.SQUARE_O.
+
+    Uses a "minimax" algorithm to choose best play.
+    See maximized_move and minimized_move methods.
     """
     def __init__(self, marker, game):
         self.marker = marker
@@ -20,11 +24,114 @@ class Player(object):
     def __repr__(self):
         return "<Player {}>".format(self.marker)
 
-    def play(self, square):
-        # TODO if square is None, pick optimal move
+    @property
+    def opponent(self):
+        return self.game.player_o if self.marker == game.SQUARE_X else self.game.player_x
+
+    @property
+    def squares(self):
+        return self.game.indexes_for_marker(self.marker)
+
+    def play(self, square=None):
+        if square is None:
+            square = self.pick_square()
         if square not in self.game.free_squares:
             raise GameException('Invalid square')
         self.game.set_square(marker=self.marker, square=square)
+
+    def pick_square(self):
+        # start off with some simple strategies for early moves
+        # there's no advantage to expensive prediction and tic-tac-toe
+        # has some well-established heuristics for early moves:
+        # http://ostermiller.org/calc/tictactoe.html
+        if self.game.current_move == 0:
+            return choice(tuple(self.game.CORNERS))  # Start in a corner if first
+        elif self.game.current_move == 1:
+            # if they went corners, we go center, or vice versa
+            if self.opponent.squares & self.game.CORNERS:
+                return self.game.CENTER
+            elif self.game.CENTER in self.opponent.squares:
+                return choice(tuple(self.game.CORNERS))
+
+        # Past first few moves, try to find maximized move
+        square, _ = self.maximized_move()
+        return square
+
+    def maximized_move(self):
+        """
+        Find maximized move
+
+        We're using a brute force "minimax" method of trying out
+        possible versions of the game and picking the best move.
+        I played around with several ways of doing this, but ended
+        up basically borrowing/stealing Sarath Lakshman's implemention:
+
+        http://www.sarathlakshman.com/2011/04/30/writing-a-tic-tac/
+
+        It's the only one I tried (including my own) where I didn't
+        get myself twisted in knots trying to make sense of it. :)
+
+        Basically we loop through every free square on the board,
+        play each square, then simulate our opponent doing the same,
+        then our response, back and forth through every combination
+        of the game, rewinding the state of the game as we go. We
+        score each outcome along the way and pick the best one.
+
+        I'm not thrilled with the 'go forward then rewind' approach,
+        and I tried making up a fresh new game for each hypothetical
+        path instead, but that ended up making my Game object too
+        messy to accomodate keeping track of the players, plus it'd
+        be even slower, so... this works.
+
+        I understand you can also do cool things like rotating the board
+        dramatically cut back on the number of possible games, which
+        would make this much faster in the early rounds, but we'll
+        leave that on the todo list for now.
+        """
+        best_score = None
+        best_move = None
+
+        for square in self.game.free_squares:
+            self.game.set_square(marker=self.marker, square=square)
+
+            if self.game.game_over:
+                score = self.get_score()
+            else:
+                _, score = self.minimized_move()
+
+            self.game.revert_last_move()
+
+            if best_score is None or score > best_score:
+                best_score = score
+                best_move = square
+
+        return best_move, best_score
+
+    def minimized_move(self):
+        "Find minimized move. See maximized_move for details."
+        best_score = None
+        best_move = None
+
+        for square in self.game.free_squares:
+            self.game.set_square(marker=self.opponent.marker, square=square)
+
+            if self.game.game_over:
+                score = self.get_score()
+            else:
+                _, score = self.maximized_move()
+
+            self.game.revert_last_move()
+
+            if best_score is None or score < best_score:
+                best_score = score
+                best_move = square
+
+        return best_move, best_score
+
+    def get_score(self):
+        if self.game.winner:
+            return 1 if self.game.winner == self else -1
+        return 0
 
 
 class Game(object):
@@ -40,9 +147,20 @@ class Game(object):
         ]
 
     All you do is pass in an initial board and it instantiates
-    two players and you can start to play. The game tracks
-    the current player, so `game.play()` alternates its
-    mark based on which player is playing.
+    two players and you can start to play. For each player, if
+    no square is provided, it selects the optimal square.
+    The game tracks the current player, so `game.play()`
+    alternates its marker based on which player is playing.
+
+    Because both players are computers, you can do this:
+
+        game = Game()
+        while not game.game_over:
+            game.play()
+
+    It will end in a tie every time. Alternatively,
+    pass in an initial board and it will play the optimal
+    game from that point on.
     """
     # board markers
     SQUARE_FREE = 0
@@ -69,6 +187,7 @@ class Game(object):
         self.board = initial_board or list(repeat(self.SQUARE_FREE, 9))
         self.player_x = Player(marker=self.SQUARE_X, game=self)
         self.player_o = Player(marker=self.SQUARE_O, game=self)
+        self.history = []
         self.winner = None
 
     def indexes_for_marker(self, marker):
@@ -81,6 +200,9 @@ class Game(object):
     @property
     def status(self):
         "See if either player has won, if the game is a tie, or if it's still going"
+        # TODO I suspect the way I'm checking for wins is slowing my game down,
+        # especially in Player's maximized/minimized_move methods.
+        # OTOH, sets are the clearest, most readable way to do this...
         for pattern in self.WINS:
             if pattern.issubset(self.x_squares):
                 self.winner = self.player_x
@@ -117,8 +239,14 @@ class Game(object):
 
     def set_square(self, marker, square):
         self.board[square] = marker
+        self.history.append(square)
 
-    def play(self, square):
+    def revert_last_move(self):
+        last_move = self.history.pop()
+        self.board[last_move] = self.SQUARE_FREE
+        self.winner = None
+
+    def play(self, square=None):
         self.current_player.play(square)
         if self.game_over:
             print "{} wins!".format(self.winner) if self.winner else "Darn cat!"
@@ -132,8 +260,12 @@ if __name__ == '__main__':
     #game.play(1); game.print_board()
     #game.play(6); game.print_board()
 
-    game = Game(initial_board=[1,0,2, 1,2,0, 0,0,0])
-    game.print_board()
-    game.play(6)
+    #game = Game(initial_board=[1,0,2, 1,2,0, 0,0,0])
+    #game.print_board()
+
+    #game = Game()
+    game = Game(initial_board=[0,0,1, 0,2,1, 0,0,0])
+    while not game.game_over:
+        game.play(); game.print_board()  # Tie every time!
 
     #import IPython; IPython.embed()
