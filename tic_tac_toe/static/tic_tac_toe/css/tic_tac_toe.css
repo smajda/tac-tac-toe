@@ -1,7 +1,10 @@
 /* django tic_tac_toe app css */
 
 /* tic-tac-toe board table */
-table { font-size: 2em; }
+table {
+    font-size: 4em;
+    width: 100%;
+}
 table td {
     width: 1em;
     padding: 0.5em;
@@ -11,3 +14,22 @@ table td {
 table td:last-child { border-right: none; }
 table tr.row1 td { border-bottom: solid 1px black;}
 table tr.row2 td { border-bottom: solid 1px black;}
+
+/* turns */
+.player {
+    font-size: 1.4em;
+    font-weight: 200;
+    margin: 0.5em 0 1em 0;
+    color: #999;
+    width: 50%;
+    float: left;
+}
+
+.player.computer { text-align:right; }
+.player.computer .active { display: none; }
+.player.computer.active .active { display: block; }
+.player.computer.active .inactive { display: none; }
+
+.player.active { font-weight: bold; }
+.human.active { color: green; }
+.computer.active { color: #C0627A; }

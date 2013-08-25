@@ -9,19 +9,23 @@
 
 
 {% block js %}
-    {# jquery, handlebars, and underscore from cdnjs and google. replace if that makes you nervous #}
+    {{ block.super }}
+
+    <script id="table-template" type="text/x-handlebars-template">
+    </script>
+
     <script src="{% static 'tic_tac_toe/js/tic_tac_toe.js' %}"></script>
 {% endblock js %}
 
 
 {% block content %}
 <div class="game">
-    <div class="player human">
-        Your turn
-    </div>
-
-    <div class="player computer">
-        Computer's turn
+    <div class="turns">
+        <div class="player human active">Your turn</div>
+        <div class="player computer">
+            <span class="inactive">Computer</span>
+            <span class="active">Thinking&hellip;</span>
+        </div>
     </div>
 
     <table class="board">

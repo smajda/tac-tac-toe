@@ -8,19 +8,26 @@
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-    body {
-        width: 500px;
-        margin: 50px auto 0 auto;
+    .content {
+        margin: 0 auto 0 auto;
+        width: 85%;
+        height: 85%;
+        max-width: 600px;
+    }
+    h1 {
+        text-align: center;
     }
     </style>
     {% endblock css %}
 </head>
 <body>
-    <h1>{% block page_header %}Tic. Tac. Toe.{% endblock page_header %}</h1>
+    <h1 class="page-header">{% block page_header %}Tic. Tac. Toe.{% endblock page_header %}</h1>
 
+    <div class="content">
     {% block content %}
         <p>Hello world.</p>
     {% endblock content %}
+    </div>
 
     {% block js %}
     {# jquery, handlebars, and underscore from cdnjs and google. replace if that makes you nervous #}
