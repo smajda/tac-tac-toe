@@ -3,7 +3,7 @@ import json
 from django.http.response import HttpResponse, HttpResponseNotAllowed
 from django.views.generic import TemplateView
 
-from game import Game, GameException
+from game import Game
 
 
 index = TemplateView.as_view(template_name='tic_tac_toe/game.html')
