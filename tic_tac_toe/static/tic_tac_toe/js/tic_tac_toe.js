@@ -37,9 +37,19 @@ var Game = function(selector) {
         } else {
             message = "You Win!";
         }
+        message += " <a href='#' onclick='game.restart();'>Try Again?</a>";
+        
         $result = game.scoreboard.find('.result');
         game.scoreboard.find('.player').hide();
         $result.html(message).show();
+    }
+
+    game.restart = function() {
+        game.squares = [0,0,0, 0,0,0, 0,0,0];
+        game.scoreboard.find('.result').hide();
+        game.scoreboard.find('.player').show();
+        game.render();
+        game.enable();
     }
 
     game.submit = function() {
