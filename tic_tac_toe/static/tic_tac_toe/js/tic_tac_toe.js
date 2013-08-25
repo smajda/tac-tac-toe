@@ -5,12 +5,12 @@ var Game = function(selector) {
 
     game.board = game.wrapper.find('table tbody');
     game.scoreboard = game.wrapper.find('.scoreboard');
-    game.squares = [1,0,0, 1,2,0, 0,0,0];
+    game.squares = [0,0,0, 0,0,0, 0,0,0];
     game.human_mark = 1  /* 1 is human (X), 2 is computer (O), 0 is free */
+    game.squareDisplayMapping = {0: '', 1: 'X', 2: 'O'}
 
     game.squaresDisplayValues = function() {
-        display_map = {0: ' ', 1: 'X', 2: 'O'}
-        return _.map(game.squares, function(i){ return display_map[i]; });
+        return _.map(game.squares, function(i){ return game.squareDisplayMapping[i]; });
     }
 
     game.play = function(index, marker) {
@@ -29,8 +29,34 @@ var Game = function(selector) {
         $('.scoreboard .computer').removeClass('active')
     }
 
+    game.endGame = function(winner) {
+        if (!winner) {
+            message = "Tie Game!";
+        } else if (winner == 2) {
+            message = "Computer Wins!";
+        } else {
+            message = "You Win!";
+        }
+        $result = game.scoreboard.find('.result');
+        game.scoreboard.find('.player').hide();
+        $result.html(message).show();
+    }
+
     game.submit = function() {
         game.disable();
+        var url = "/" + game.squares.join('') + "/";
+        $.get(url).done(function(data) {
+            // handle data
+            game.squares = data.squares;
+            if (data.is_over) {
+                game.endGame(data.winner);
+            } else {
+                game.enable();
+            }
+            game.render();
+        }).fail(function() {
+            alert("I'm sorry. There was an error. I guess you win.");
+        });
     }
 
     game.template = function(data) {

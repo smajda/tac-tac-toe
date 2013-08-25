@@ -26,10 +26,13 @@ table td.X:hover, table td.O:hover {
 }
 
 /* scoreboard */
+.scoreboard {
+    margin: 0.5em 0 1em 0;
+    overflow: hidden;
+}
 .player {
     font-size: 2em;
     font-weight: 200;
-    margin: 0.5em 0 1em 0;
     color: #999;
     width: 50%;
     float: left;
@@ -43,3 +46,9 @@ table td.X:hover, table td.O:hover {
 .player.active { font-weight: bold; }
 .human.active { color: green; }
 .computer.active { color: #C0627A; }
+
+.result {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+}
