@@ -134,7 +134,9 @@ DJANGO_APPS = (
     # 'django.contrib.admindocs',
 )
 
-THIRD_PARTY_APPS = tuple()
+THIRD_PARTY_APPS = (
+    'gunicorn',
+)
 
 PROJECT_APPS = (
     'tic_tac_toe',
