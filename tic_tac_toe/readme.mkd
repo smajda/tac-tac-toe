@@ -1,0 +1,6 @@
+# Tic Tac Toe Django app
+
+## Dependencies
+
+- Django 1.5+
+- ??

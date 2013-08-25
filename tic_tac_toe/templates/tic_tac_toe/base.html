@@ -1,0 +1,32 @@
+{% load static %}
+
+<html>
+<head>
+    <title>Tic. Tac. Toe.</title>
+    {% block css %}
+    {# bootstrap from bootstrapcdn. replace if that makes you nervous #}
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+    body {
+        width: 500px;
+        margin: 50px auto 0 auto;
+    }
+    </style>
+    {% endblock css %}
+</head>
+<body>
+    <h1>{% block page_header %}Tic. Tac. Toe.{% endblock page_header %}</h1>
+
+    {% block content %}
+        <p>Hello world.</p>
+    {% endblock content %}
+
+    {% block js %}
+    {# jquery, handlebars, and underscore from cdnjs and google. replace if that makes you nervous #}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0/handlebars.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+    {% endblock js %}
+</body>
+</html>

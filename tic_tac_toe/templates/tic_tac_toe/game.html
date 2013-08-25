@@ -1,0 +1,47 @@
+{% extends 'tic_tac_toe/base.html' %}
+{% load static %}
+
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'tic_tac_toe/css/tic_tac_toe.css' %}" rel="stylesheet">
+{% endblock css %}
+
+
+{% block js %}
+    {# jquery, handlebars, and underscore from cdnjs and google. replace if that makes you nervous #}
+    <script src="{% static 'tic_tac_toe/js/tic_tac_toe.js' %}"></script>
+{% endblock js %}
+
+
+{% block content %}
+<div class="game">
+    <div class="player human">
+        Your turn
+    </div>
+
+    <div class="player computer">
+        Computer's turn
+    </div>
+
+    <table class="board">
+        <tbody>
+            <tr class="row1">
+                <td data-id="0">X</td>
+                <td data-id="1">X</td>
+                <td data-id="2">&nbsp;</td>
+            </tr>
+            <tr class="row2">
+                <td data-id="3">&nbsp;</td>
+                <td data-id="4">&nbsp;</td>
+                <td data-id="5">&nbsp;</td>
+            </tr>
+            <tr class="row3">
+                <td data-id="6">&nbsp;</td>
+                <td data-id="7">&nbsp;</td>
+                <td data-id="8">&nbsp;</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock content %}
