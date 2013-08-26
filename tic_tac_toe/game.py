@@ -160,7 +160,11 @@ class Game(object):
 
     It will end in a tie every time. Alternatively,
     pass in an initial board and it will play the optimal
-    game from that point on.
+    game from that point on:
+
+        Game(initial_board=[1,0,0, 0,0,0, 0,0,0])
+        game.play()
+
     """
     # board markers
     SQUARE_FREE = 0
@@ -184,11 +188,27 @@ class Game(object):
     )
 
     def __init__(self, initial_board=None):
-        self.board = initial_board or list(repeat(self.SQUARE_FREE, 9))
+        # set empty board or validate incoming board
+        if initial_board is None:
+            self.board = list(repeat(self.SQUARE_FREE, 9))
+        elif self.is_valid_board(initial_board):
+            self.board = initial_board
+        else:
+            raise GameException('Invalid initial board')
         self.player_x = Player(marker=self.SQUARE_X, game=self)
         self.player_o = Player(marker=self.SQUARE_O, game=self)
         self.history = []
         self.winner = None
+
+    @classmethod
+    def is_valid_board(cls, board):
+        valid_items = {cls.SQUARE_FREE, cls.SQUARE_X, cls.SQUARE_O}
+        try:
+            all_valid = all(i in valid_items for i in board)
+        except TypeError:
+            return False  # would happen if board not iterable
+        len_nine = len(board) == 9
+        return all((all_valid, len_nine))
 
     def indexes_for_marker(self, marker):
         return {index for index, item in enumerate(self.board) if item == marker}
@@ -247,8 +267,8 @@ class Game(object):
 
     def play(self, square=None):
         self.current_player.play(square)
-        if self.is_over():
-            print "{} wins!".format(self.winner) if self.winner else "Darn cat!"
+        return self.check_status()
+
 
 if __name__ == '__main__':
 
