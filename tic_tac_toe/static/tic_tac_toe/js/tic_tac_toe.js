@@ -83,7 +83,9 @@ var Game = function(selector) {
 
     game.bindClicks = function() {
         game.board.find('td').each(function() {
-            $(this).on('click', function() {
+            $this = $(this);
+            $this.hammer();
+            $this.on('tap', function() {
                 $square = $(this);
                 // do nothing if they click on already used squares
                 used = $square.hasClass('O') || $square.hasClass('X');
