@@ -174,8 +174,7 @@ class Game(object):
     # game status values
     STATUS_PLAYING = 0
     STATUS_TIED = 1
-    STATUS_X = 2
-    STATUS_O = 3
+    STATUS_WINNER = 2
 
     # info about the board
     CENTER = 4
@@ -199,6 +198,8 @@ class Game(object):
         self.player_o = Player(marker=self.SQUARE_O, game=self)
         self.history = []
         self.winner = None
+        self.status = self.STATUS_PLAYING
+        self.update_status()
 
     @classmethod
     def is_valid_board(cls, board):
@@ -217,26 +218,28 @@ class Game(object):
     o_squares = property(lambda self: self.indexes_for_marker(self.SQUARE_O))
     free_squares = property(lambda self: self.indexes_for_marker(self.SQUARE_FREE))
 
-    def check_status(self):
-        "See if either player has won, if the game is a tie, or if it's still going"
-        # TODO I suspect the way I'm checking for wins is slowing my game down,
-        # especially in Player's maximized/minimized_move methods.
-        # OTOH, sets are the clearest, most readable way to do this...
+    def update_status(self):
+        "Update self.winner, self.status to reflect current state of game"
+        # set winner
+        winner = None
         for pattern in self.WINS:
-            if pattern.issubset(self.x_squares):
-                self.winner = self.player_x
-                return self.STATUS_X  # X has winning set
-            if pattern.issubset(self.o_squares):
-                self.winner = self.player_o
-                return self.STATUS_O  # O has winning set
+            if pattern.issubset(self.player_x.squares):
+                winner = self.player_x
+            elif pattern.issubset(self.player_o.squares):
+                winner = self.player_o
 
-        # No winner, so return playing or tied if no squares left
-        return self.STATUS_PLAYING if self.free_squares else self.STATUS_TIED
+        # set status
+        status = self.STATUS_PLAYING
+        if winner:
+            status = self.STATUS_WINNER
+        elif not self.free_squares:
+            status = self.STATUS_TIED
+
+        self.winner, self.status = winner, status
 
     def is_over(self):
-        "Updates status and return True if the game is over (in tie or victory)"
-        status = self.check_status()
-        return status != self.STATUS_PLAYING
+        "True if the game is over (in tie or victory)"
+        return self.status != self.STATUS_PLAYING
 
     @property
     def current_move(self):
@@ -248,6 +251,24 @@ class Game(object):
         "Return current player"
         return self.player_x if self.current_move % 2 == 0 else self.player_o
 
+    def set_square(self, marker, square):
+        "Set marker at square and update Game state"
+        self.board[square] = marker
+        self.history.append(square)
+        self.update_status()
+
+    def revert_last_move(self):
+        "Undo last move and reset Game state"
+        last_move = self.history.pop()
+        self.board[last_move] = self.SQUARE_FREE
+        self.status = self.STATUS_PLAYING
+        self.winner = None
+
+    def play(self, square=None):
+        "Shortcut to make current player set (or select and set) square"
+        self.current_player.play(square)
+        return self.status
+
     def print_board(self):
         "Helpful while developing to be able to print this out"
         print(dedent("""
@@ -255,19 +276,6 @@ class Game(object):
             {} {} {}
             {} {} {}
         """.format(*self.board)))
-
-    def set_square(self, marker, square):
-        self.board[square] = marker
-        self.history.append(square)
-
-    def revert_last_move(self):
-        last_move = self.history.pop()
-        self.board[last_move] = self.SQUARE_FREE
-        self.winner = None
-
-    def play(self, square=None):
-        self.current_player.play(square)
-        return self.check_status()
 
 
 if __name__ == '__main__':

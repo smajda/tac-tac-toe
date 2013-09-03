@@ -17,7 +17,7 @@ class TicTacToeGameTest(unittest.TestCase):
         # game should be over and tied
         self.assertEqual(game.is_over(), True)
         self.assertEqual(game.winner, None)
-        self.assertEqual(game.check_status(), game.STATUS_TIED)
+        self.assertEqual(game.status, game.STATUS_TIED)
 
     def testBadBoard(self):
         "Bad board raises error"
@@ -37,7 +37,8 @@ class TicTacToeGameTest(unittest.TestCase):
         game = Game(initial_board=[1,2,0, 1,2,0, 0,0,0])
         self.assertEqual(game.current_player.marker, 1)
         game.play()
-        self.assertEqual(game.check_status(), game.STATUS_X)
+        self.assertTrue(game.is_over())
+        self.assertEqual(game.status, game.STATUS_WINNER)
         self.assertEqual(game.winner, game.player_x)
 
     def testManualPlay(self):
