@@ -5,10 +5,3 @@ To use:
     mkvirtualenv tic_tac_toe
     pip install -r requirements.txt
     python manage.py runserver --settings=sample_project.settings.base
-
-To deploy:
-
-    cp .env.example .env
-
-Edit `.env` to suit your needs and source it somehow. If you deploy to Heroku, this will happen automatically.
-
